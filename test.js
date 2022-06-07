@@ -1311,3 +1311,480 @@ var trap = function(height) {
 
 
 
+/// ==== 394. 字符串解码
+// 给定一个经过编码的字符串，返回它解码后的字符串。
+
+// 编码规则为: k[encoded_string]，表示其中方括号内部的 encoded_string 正好重复 k 次。注意 k 保证为正整数。
+
+// 你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。
+
+// 此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k ，例如不会出现像 3a 或 2[4] 的输入。
+
+// 输入：s = "3[a]2[bc]"
+// 输出："aaabcbc"
+
+// 输入：s = "2[abc]3[cd]ef"
+// 输出："abcabccdcdcdef"
+
+var decodeString = function(s) {
+    if(s.indexOf('[') === -1) {
+        return s;
+    }
+    var len = s.length;
+    var l = 0;
+    var r = len-1;
+    for(var i=0;i<len;i++) {
+        if(s[i] === '[') {
+            l = i;
+        }
+    }
+    for(var j=len-1;j>=0;j--) {
+        if(s[j] === ']' && j >= l) {
+            r = j;
+        }
+    }
+    var tmpItem = s.slice(l+1,r);
+    var tmpStr = tmpItem;
+    var idx = s[l-1];
+    // 这里有个找数字的过程
+    var num = l-2;
+    while(num >= 0 && !isNaN(s[num]*1)) {
+        idx = s[num] + '' + idx;
+        num --
+    }
+
+    for(var k=1;k<idx;k++) {
+        tmpStr += tmpItem;
+    }
+    s = s.slice(0, num+1) + tmpStr + s.slice(r+1);
+    return decodeString(s);
+};
+
+
+
+
+// ====== 713. 乘积小于 K 的子数组
+// 给你一个整数数组 nums 和一个整数 k ，请你返回子数组内所有元素的乘积严格小于 k 的连续子数组的数目。
+// 输入：nums = [10,5,2,6], k = 100
+// 输出：8
+// 解释：8 个乘积小于 100 的子数组分别为：[10]、[5]、[2],、[6]、[10,5]、[5,2]、[2,6]、[5,2,6]。
+// 需要注意的是 [10,5,2] 并不是乘积小于 100 的子数组。
+
+// 输入：nums = [1,2,3], k = 0
+// 输出：0
+
+var numSubarrayProductLessThanK = function(nums, k) {
+    
+    var st = 0;
+    var nm = 0;
+    var len = nums.length;
+    var ret = 0;
+    var res = [];
+    
+    for(var i=0;i<len;i++) {
+        var tmp = 1;
+
+        for(var j=i;j<len;j++) {
+            tmp = nums[j]*tmp;
+            if(tmp < k) {
+                res[i] = j;
+            }
+        }
+        nm = res[i] - i + 1;
+        st = res[i-1] !== undefined ? res[i-1] + 1 : 0;
+        ret += rt(nm, st);
+    }
+    
+
+    // 定义一个方法返回阶乘，根据指针返回阶乘值
+    function rt(num, start) {
+        var res = 0;
+        for(var i=start;i<=num;i++) {
+            res += i;
+        }
+        return res;
+    }
+    return ret;
+};
+
+
+
+
+
+
+// =====442. 数组中重复的数据
+// 给你一个长度为 n 的整数数组 nums ，其中 nums 的所有整数都在范围 [1, n] 内，且每个整数出现 一次 或 两次 。请你找出所有出现 两次 的整数，并以数组形式返回。
+
+// 你必须设计并实现一个时间复杂度为 O(n) 且仅使用常量额外空间的算法解决此问题。
+// 输入：nums = [4,3,2,7,8,2,3,1]
+// 输出：[2,3]
+
+var findDuplicates = function(nums) {
+    var o = {};
+    var len = nums.length;
+    var arr = [];
+    for(var i=0;i<len;i++) {
+        if(o[nums[i]] === undefined) {
+            o[nums[i]] = nums[i];
+        } else {
+            arr.push(nums[i]);
+        }
+    }
+    return arr;
+};
+
+
+
+
+
+
+// 17. 电话号码的字母组合
+// 给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。
+
+// 给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
+// 输入：digits = "23"
+// 输出：["ad","ae","af","bd","be","bf","cd","ce","cf"]
+
+// 输入：digits = "2"
+// 输出：["a","b","c"]
+
+var letterCombinations = function(digits) {
+    // 构造一个结构
+    var o = {
+        '2': ['a', 'b', 'c'],
+        '3': ['d', 'e', 'f'],
+        '4': ['g', 'h', 'i'],
+        '5': ['j', 'k', 'l'],
+        '6': ['m', 'n', 'o'],
+        '7': ['p', 'q', 'r', 's'],
+        '8': ['t', 'u', 'v'],
+        '9': ['w', 'x', 'y', 'z']
+    };
+    digits = digits + '';
+    var arr = [];
+    for(var i=0;i<digits.length;i++) {
+        arr.push(o[digits[i]]);
+    }
+    var res = [];
+    function dfs(arr, idx, ar) {
+        var len = arr.length;
+        if(ar.length === len) {
+            res.push(ar);
+        } else {
+            for(var i=0;i<arr[idx].length;i++) {
+                dfs(arr, idx+1, ar+''+arr[idx][i])
+            }
+        }
+    }
+    dfs(arr, 0, '');
+    return res;
+};
+
+
+
+//=== 2251. 花期内花的数目
+// 给你一个下标从 0 开始的二维整数数组 flowers ，其中 flowers[i] = [starti, endi] 表示第 i 朵花的 花期 从 starti 到 endi （都 包含）。同时给你一个下标从 0 开始大小为 n 的整数数组 persons ，persons[i] 是第 i 个人来看花的时间。
+
+// 请你返回一个大小为 n 的整数数组 answer ，其中 answer[i]是第 i 个人到达时在花期内花的 数目 。
+// 输入：flowers = [[1,6],[3,7],[9,12],[4,13]], persons = [2,3,7,11]
+// 输出：[1,2,2,2]
+// 解释：上图展示了每朵花的花期时间，和每个人的到达时间。
+// 对每个人，我们返回他们到达时在花期内花的数目。
+
+var fullBloomFlowers = function(flowers, persons) {
+    var flen = flowers.length;
+    var list = [];
+    persons.forEach(function(item, index) {
+        list[index] = 0;
+        for(var i=0;i<flen;i++) {
+            if(flowers[i][0] <= item && flowers[i][1] >= item) {
+                list[index] ++;
+            }
+        }
+    })
+    return list;
+};
+
+
+
+
+// ==== 433. 最小基因变化
+// 基因序列可以表示为一条由 8 个字符组成的字符串，其中每个字符都是 'A'、'C'、'G' 和 'T' 之一。
+
+// 假设我们需要调查从基因序列 start 变为 end 所发生的基因变化。一次基因变化就意味着这个基因序列中的一个字符发生了变化。
+
+// 例如，"AACCGGTT" --> "AACCGGTA" 就是一次基因变化。
+// 另有一个基因库 bank 记录了所有有效的基因变化，只有基因库中的基因才是有效的基因序列。
+
+// 给你两个基因序列 start 和 end ，以及一个基因库 bank ，请你找出并返回能够使 start 变化为 end 所需的最少变化次数。如果无法完成此基因变化，返回 -1 。
+
+// 注意：起始基因序列 start 默认是有效的，但是它并不一定会出现在基因库中。
+
+// 输入：start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
+// 输出：1
+
+// 输入：start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+// 输出：2
+
+// 输入：start = "AAAAACCC", end = "AACCCCCC", bank = ["AAAACCCC","AAACCCCC","AACCCCCC"]
+// 输出：3
+
+var minMutation = function(start, end, bank) {
+    var arr = [];
+    var index = 0;
+    var rt = 0;
+    function find(ar) {
+        if(index > 100) return;
+        var tmp = [];
+        for(var i=0;i<ar.length;i++) {
+            if(ar[i] === end) {
+                rt = index;
+                return;
+            } else {
+                if(conce(ar[i], t)) {
+                    bank.splice(i, 1)
+                    tmp.push(ar[i]);
+                }
+            }
+        }
+        index ++;
+        find(tmp)
+    }
+
+    function conce(s, t) {
+        var once = 0;
+        for(var i in s) {
+            if(s[i] !== t[i]) {
+                once ++;
+            }
+        }
+        return once === 1 ? true : false;
+    }
+};
+
+
+// 49. 字母异位词分组
+// 给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+
+// 字母异位词 是由重新排列源单词的字母得到的一个新单词，所有源单词中的字母通常恰好只用一次。
+// 输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+// 输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+
+var groupAnagrams = function(strs) {
+    // 对象存储
+    var o = {};
+    var tmp = null;
+    strs.forEach((item, index) => {
+        tmp = stStr(item);
+        if(o[tmp] === undefined) {
+            o[tmp] = [item];
+        } else {
+            o[tmp].push(item);
+        }
+    })
+
+    // 字符串的排序
+    function stStr(s) {
+        return strs.split('').sort((a, b) => {
+            return a.charCodeAt() - b.charCodeAt();
+        }).join('');
+    }
+    var rt = [];
+    for(var i in o) {
+        rt.push(o[i]);
+    }
+    return rt;
+};
+
+
+
+// ==462. 最少移动次数使数组元素相等 II
+// 给你一个长度为 n 的整数数组 nums ，返回使所有数组元素相等需要的最少移动数。
+
+// 在一步操作中，你可以使数组中的一个元素加 1 或者减 1 。
+
+// 输入：nums = [1,2,3]
+// 输出：2
+// 解释：
+// 只需要两步操作（每步操作指南使一个元素加 1 或减 1）：
+// [1,2,3]  =>  [2,2,3]  =>  [2,2,2]
+
+// 输入：nums = [1,10,2,9]
+// 输出：16
+
+var minMoves2 = function(nums) {
+    var len = nums.length;
+    var sums = 0;
+    var res = 0;
+    nums.forEach((item) => {
+        sums += item;
+    });
+    var tmp1 = 0;
+    var tmp2 = 0;
+    if(sums % len > 0) {
+        tmp2 = Math.floor(sums/len) + 1;
+    }
+    tmp1 = Math.floor(sums/len);
+    var res1 = 0;
+    var res2 = 0;
+    nums.forEach((item) => {
+        if(item > tmp1) {
+            res1 += (item - tmp1)
+        } else if(item < tmp1) {
+            res1 += (tmp1 - item)
+        }
+    });
+    nums.forEach((item) => {
+        if(item > tmp2) {
+            res2 += (item - tmp2)
+        } else if(item < tmp2) {
+            res2 += (tmp2 - item)
+        }
+    });
+    return Math.min(res1, res2);
+};
+
+
+
+
+
+
+
+// 699. 掉落的方块
+// 在二维平面上的 x 轴上，放置着一些方块。
+
+// 给你一个二维整数数组 positions ，其中 positions[i] = [lefti, sideLengthi] 表示：第 i 个方块边长为 sideLengthi ，其左侧边与 x 轴上坐标点 lefti 对齐。
+
+// 每个方块都从一个比目前所有的落地方块更高的高度掉落而下。方块沿 y 轴负方向下落，直到着陆到 另一个正方形的顶边 或者是 x 轴上 。一个方块仅仅是擦过另一个方块的左侧边或右侧边不算着陆。一旦着陆，它就会固定在原地，无法移动。
+
+// 在每个方块掉落后，你必须记录目前所有已经落稳的 方块堆叠的最高高度 。
+
+// 返回一个整数数组 ans ，其中 ans[i] 表示在第 i 块方块掉落后堆叠的最高高度。
+
+// 输入：positions = [[1,2],[2,3],[6,1]]
+// 输出：[2,5,5]
+// 解释：
+// 第 1 个方块掉落后，最高的堆叠由方块 1 组成，堆叠的最高高度为 2 。
+// 第 2 个方块掉落后，最高的堆叠由方块 1 和 2 组成，堆叠的最高高度为 5 。
+// 第 3 个方块掉落后，最高的堆叠仍然由方块 1 和 2 组成，堆叠的最高高度为 5 。
+// 因此，返回 [2, 5, 5] 作为答案。
+
+// 没做完。。。。
+
+var fallingSquares = function(positions) {
+
+
+    // 用一个数组表示 是否已经覆盖过坐标的区域
+    var asList = [];
+    var max = 0;
+    
+    // 判断区间，并且返回最大高度的
+    function isIn(item) {
+        var tmp = item[1];
+        var tmp2 = [item[0], (item[0] + item[1])];
+        asList.forEach(function(it, idx) {
+            
+        })
+    }
+};
+
+
+
+// 6. Z 字形变换
+// 将一个给定字符串 s 根据给定的行数 numRows ，以从上往下、从左到右进行 Z 字形排列。
+
+// 比如输入字符串为 "PAYPALISHIRING" 行数为 3 时，排列如下：
+
+// P   A   H   N
+// A P L S I I G
+// Y   I   R
+
+//。。
+var convert = function(s, numRows) {
+    if(numRows === 1) {
+        return s;
+    }
+    var arr = [];
+    var index = 0;
+    var len = s.length;
+    var tmp = numRows - 1;
+    for(var i=0;i<len;i++) {
+        if((i % tmp) > 0 && Math.floor(i/tmp) % 2 === 1) {
+            index ++
+        }
+        if((i / tmp) > 1 && (i % tmp === 0) && (i/tmp) % 2 === 0) {
+            index ++;
+        }
+        if(arr[index] === undefined) arr[index] = [];
+        if(index % tmp === 0) {
+            arr[index].push(s[i]);
+        } else {
+            var t = index % tmp;
+            arr[index][tmp - t] = s[i];
+        }
+    }
+
+    var rt = '';
+    var l = arr.length;
+    for(var i=0;i<numRows;i++) {
+        for(var j=0;j<l;j++) {
+            if(arr[j][i] !== undefined) {
+                rt += arr[j][i]
+            }
+        }
+    }
+
+    return rt;
+};
+
+
+// 929. 独特的电子邮件地址
+// 每个 有效电子邮件地址 都由一个 本地名 和一个 域名 组成，以 '@' 符号分隔。除小写字母之外，电子邮件地址还可以含有一个或多个 '.' 或 '+' 。
+
+// 例如，在 alice@leetcode.com中， alice 是 本地名 ，而 leetcode.com 是 域名 。
+// 如果在电子邮件地址的 本地名 部分中的某些字符之间添加句点（'.'），则发往那里的邮件将会转发到本地名中没有点的同一地址。请注意，此规则 不适用于域名 。
+
+// 例如，"alice.z@leetcode.com” 和 “alicez@leetcode.com” 会转发到同一电子邮件地址。
+// 如果在 本地名 中添加加号（'+'），则会忽略第一个加号后面的所有内容。这允许过滤某些电子邮件。同样，此规则 不适用于域名 。
+
+// 例如 m.y+name@email.com 将转发到 my@email.com。
+// 可以同时使用这两个规则。
+
+// 给你一个字符串数组 emails，我们会向每个 emails[i] 发送一封电子邮件。返回实际收到邮件的不同地址数目。
+
+var numUniqueEmails = function(emails) {
+    var obj = {};
+    var len = emails.length;
+    var tmp = '';
+    var index = 0;
+    for(var i=0;i<len;i++) {
+        tmp = t(emails[i]);
+        if(obj[tmp] === undefined) {
+            obj[tmp] = true;
+            index ++;
+        }
+    }
+
+    function t(s) {
+        var s1 = s.split('@')[0]
+        var s2 = s.split('@')[1]
+        if(s1.indexOf('.') > -1) {
+            s1 = s1.replaceAll('.', '');
+        }
+        if(s1.indexOf('+') > -1) {
+            s1 = s1.split('+')[0];
+        }
+        return s1 + '@' + s2;
+    }
+    return index;
+};
+
+
+
+
+
+
+
+
+
